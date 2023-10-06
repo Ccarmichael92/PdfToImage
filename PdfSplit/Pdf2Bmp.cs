@@ -4,11 +4,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using PdfDocument = PdfSharp.Pdf.PdfDocument;
 
-namespace DmsApp.Helper
+namespace PdfToBitmapList
 {
-    public static class PdfSplit
+    public static class Pdf2Bmp
     {
-        public static List<Bitmap> Split(string document, ImageFormat format)
+        public static List<Bitmap> Split(string document)
         {
             PdfDocument doc = PdfReader.Open(document, PdfDocumentOpenMode.Import);
             if(doc != null)
