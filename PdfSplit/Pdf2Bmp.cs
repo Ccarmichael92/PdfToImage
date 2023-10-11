@@ -1,8 +1,8 @@
 ﻿using PdfiumViewer;
-using PdfSharp.Pdf.IO;
+using PdfSharpCore.Pdf.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
-using PdfDocument = PdfSharp.Pdf.PdfDocument;
+using PdfDocument = PdfSharpCore.Pdf.PdfDocument;
 
 namespace PdfToBitmapList
 {
@@ -17,6 +17,39 @@ namespace PdfToBitmapList
                 return result;
             }
             
+
+            return null;
+        }
+
+        public static List<Bitmap> Split(PdfDocument document)
+        {
+            if (document != null)
+            {
+                var result = Pdf2ImageList(document);
+                return result;
+            }
+
+
+            return null;
+        }
+
+        public static List<Bitmap> Split(byte[] document)
+        {
+            if (document != null)
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    ms.Write(document);
+                    PdfDocument doc = PdfReader.Open(ms, PdfDocumentOpenMode.Import);
+
+                    if (doc != null)
+                    {
+                        var result = Pdf2ImageList(doc);
+                        return result;
+                    }
+                }
+            }
+           
 
             return null;
         }
