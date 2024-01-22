@@ -13,7 +13,8 @@ namespace PdfToBitmapList
         public static List<Bitmap> Split(string document, int dpi = 300)
         {
             PdfDocument doc = PdfReader.Open(document, PdfDocumentOpenMode.Import);
-            if(doc != null)
+            Dpi = dpi;
+            if (doc != null)
             {
                 var result = Pdf2ImageList(doc);
                 return result;
@@ -25,6 +26,7 @@ namespace PdfToBitmapList
 
         public static List<Bitmap> Split(PdfDocument document, int dpi = 300)
         {
+            Dpi = dpi;
             if (document != null)
             {
                 var result = Pdf2ImageList(document);
@@ -37,6 +39,7 @@ namespace PdfToBitmapList
 
         public static List<Bitmap> Split(byte[] document, int dpi = 300)
         {
+            Dpi = dpi;
             if (document != null)
             {
                 using (MemoryStream ms = new MemoryStream())
@@ -70,8 +73,8 @@ namespace PdfToBitmapList
                 temp.AddPage(document.Pages[index]);
 
                 Size size = new Size();
-                size.Width = (int)temp.Pages[index].Width;
-                size.Height = (int)temp.Pages[index].Height;
+                size.Width = (int)document.Pages[index].Width;
+                size.Height = (int)document.Pages[index].Height;
 
                 using (MemoryStream ms = new MemoryStream())
                 {
@@ -89,7 +92,7 @@ namespace PdfToBitmapList
 
         private static Image GetPageImage(int pageNumber, Size size, PdfiumViewer.PdfDocument document, int dpi)
         {
-            return document.Render(pageNumber - 1, size.Width, size.Height, dpi, dpi, PdfRenderFlags.Annotations);
+            return document.Render(pageNumber - 1, size.Width, size.Height, dpi, dpi, PdfRenderFlags.Annotations|PdfRenderFlags.CorrectFromDpi);
         }
 
         private static Image RenderPage(Stream pdfPath, int pageNumber, Size size)

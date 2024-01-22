@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0-windows10.0.18362.0;net6.0-windows10.0.18362.0</TargetFrameworks>
-	<Version>1.0.2</Version>
+	<Version>1.1.1</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>PdfToBitmapList</PackageId>
@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://github.com/Ccarmichael92/PdfToImage</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Ccarmichael92/PdfToImage</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>pdf;bitmap;pdftobitmaplist; pdfsplit; split;</PackageTags>
+    <PackageTags>pdf;bitmap;pdftobitmaplist; pdfsplit; split;convert;</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
