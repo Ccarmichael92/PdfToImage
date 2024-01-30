@@ -1,5 +1,4 @@
-﻿using PdfiumViewer;
-using PdfSharpCore.Pdf.IO;
+﻿using PdfSharpCore.Pdf.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using PdfDocument = PdfSharpCore.Pdf.PdfDocument;
@@ -90,14 +89,14 @@ namespace PdfToBitmapList
             return returnList;
         }
 
-        private static Image GetPageImage(int pageNumber, Size size, PdfiumViewer.PdfDocument document, int dpi)
+        private static Image GetPageImage(int pageNumber, Size size, PdfDoc document, int dpi)
         {
             return document.Render(pageNumber - 1, size.Width, size.Height, dpi, dpi, PdfRenderFlags.Annotations|PdfRenderFlags.CorrectFromDpi);
         }
 
         private static Image RenderPage(Stream pdfPath, int pageNumber, Size size)
         {
-            using (var document = PdfiumViewer.PdfDocument.Load(pdfPath))
+            using (var document = PdfDoc.Load(pdfPath))
             {
                 var image = GetPageImage(pageNumber, size, document, Dpi);
                 {
