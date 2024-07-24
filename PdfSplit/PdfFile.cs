@@ -19,7 +19,7 @@ namespace PdfToBitmapList
         private PdfiumNative.FPDF_FORMFILLINFO _formCallbacks;
         private GCHandle _formCallbacksHandle;
         private readonly int _id;
-        private Stream _stream;
+        private Stream? _stream;
 
         private PageData _currentPageData = null;
         private int _currentPageDataPageNumber = -1;
