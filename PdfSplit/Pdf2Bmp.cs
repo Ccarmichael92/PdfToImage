@@ -1,4 +1,5 @@
 ﻿using PdfSharpCore.Pdf.IO;
+using PdfSharpCore.Pdf.IO.enums;
 using System.Drawing;
 using System.Drawing.Imaging;
 using PdfDocument = PdfSharpCore.Pdf.PdfDocument;
@@ -7,11 +8,17 @@ namespace PdfToBitmapList
 {
     public static class Pdf2Bmp
     {
-        public static int Dpi { get; set; }
-
+        private static int Dpi { get; set; }
+        
+        /// <summary>
+        /// Split Pdf into a list of Bitmap images.
+        /// </summary>
+        /// <param name="document">Pdf file path</param>
+        /// <param name="dpi">DPI of generated images</param>
+        /// <returns></returns>
         public static List<Bitmap> Split(string document, int dpi = 300)
         {
-            PdfDocument doc = PdfReader.Open(document, PdfDocumentOpenMode.Import);
+            PdfDocument doc = PdfReader.Open(document, PdfDocumentOpenMode.Import, PdfReadAccuracy.Moderate);
             Dpi = dpi;
             if (doc != null)
             {
@@ -22,7 +29,12 @@ namespace PdfToBitmapList
 
             return null;
         }
-
+        /// <summary>
+        /// Split Pdf into a list of Bitmap images.
+        /// </summary>
+        /// <param name="document">PdfSharpCore Pdf document</param>
+        /// <param name="dpi">DPI of generated images</param>
+        /// <returns></returns>
         public static List<Bitmap> Split(PdfDocument document, int dpi = 300)
         {
             Dpi = dpi;
@@ -36,6 +48,12 @@ namespace PdfToBitmapList
             return null;
         }
 
+        /// <summary>
+        /// Split Pdf into a list of Bitmap images.
+        /// </summary>
+        /// <param name="document">Byte array containing a pdf document</param>
+        /// <param name="dpi">DPI of generated images</param>
+        /// <returns></returns>
         public static List<Bitmap> Split(byte[] document, int dpi = 300)
         {
             Dpi = dpi;
@@ -44,7 +62,7 @@ namespace PdfToBitmapList
                 using (MemoryStream ms = new MemoryStream())
                 {
                     ms.Write(document);
-                    PdfDocument doc = PdfReader.Open(ms, PdfDocumentOpenMode.Import);
+                    PdfDocument doc = PdfReader.Open(ms, PdfDocumentOpenMode.Import, PdfReadAccuracy.Moderate);
 
                     if (doc != null)
                     {
