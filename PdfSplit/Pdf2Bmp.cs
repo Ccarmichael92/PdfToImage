@@ -22,6 +22,9 @@ namespace PdfToBitmapList
             Dpi = dpi;
             if (doc != null)
             {
+                //Get page count to account for bug in pdfsharpcore that shows null pdf when not previously accessed.
+                var pageCount = doc.PageCount;
+                //Get the list of images
                 var result = Pdf2ImageList(doc);
                 return result;
             }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
+using PdfToBitmapList.PdfiumModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
