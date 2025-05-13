@@ -1,5 +1,4 @@
-﻿using PdfSharpCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -258,22 +257,15 @@ namespace PdfToBitmapList
             return bitmap;
         }
 
+        public int PageCount()
+        {
+            return _file.GetPageCount();
+        }
+
         private PdfiumNative.FPDF FlagsToFPDFFlags(PdfRenderFlags flags)
         {
             return (PdfiumNative.FPDF)(flags & ~(PdfRenderFlags.Transparent | PdfRenderFlags.CorrectFromDpi));
         }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         private PdfDoc(Stream stream, string password)

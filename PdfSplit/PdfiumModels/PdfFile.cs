@@ -170,6 +170,13 @@ namespace PdfToBitmapList
             return true;
         }
 
+        public int GetPageCount()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(GetType().Name);
+            return PdfiumNative.FPDF_GetPageCount(_document);
+        }
+
         private PageData GetPageData(int pageNumber)
         {
             if (_currentPageDataPageNumber != pageNumber)

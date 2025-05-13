@@ -1,15 +1,14 @@
-﻿using PdfSharpCore.Pdf.IO;
-using PdfSharpCore.Pdf.IO.enums;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
-using PdfDocument = PdfSharpCore.Pdf.PdfDocument;
+using System.Net.NetworkInformation;
+using Windows.Storage;
 
 namespace PdfToBitmapList
 {
     public static class Pdf2Bmp
     {
         private static int Dpi { get; set; }
-        
+
         /// <summary>
         /// Split Pdf into a list of Bitmap images.
         /// </summary>
@@ -18,36 +17,62 @@ namespace PdfToBitmapList
         /// <returns></returns>
         public static List<Bitmap> Split(string document, int dpi = 300)
         {
-            PdfDocument doc = PdfReader.Open(document, PdfDocumentOpenMode.Import, PdfReadAccuracy.Moderate);
             Dpi = dpi;
-            if (doc != null)
+            using (var fs = new FileStream(document, FileMode.Open, FileAccess.Read))
             {
-                //Get page count to account for bug in pdfsharpcore that shows null pdf when not previously accessed.
-                var pageCount = doc.PageCount;
-                //Get the list of images
-                var result = Pdf2ImageList(doc);
-                return result;
+                if (fs.Length > 0)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        fs.CopyTo(ms);
+                        ms.Position = 0;
+                        return (List<Bitmap>)Pdf2ImageList(ms);
+                    }
+                } 
             }
-            
-
             return null;
         }
+
         /// <summary>
         /// Split Pdf into a list of Bitmap images.
         /// </summary>
-        /// <param name="document">PdfSharpCore Pdf document</param>
+        /// <param name="document">Pdf file path</param>
+        /// <param name="saveLocation">Location to save images</param>
         /// <param name="dpi">DPI of generated images</param>
         /// <returns></returns>
-        public static List<Bitmap> Split(PdfDocument document, int dpi = 300)
+        public static List<string> Split(string document, string saveLocation, int dpi = 300)
         {
             Dpi = dpi;
-            if (document != null)
+            using (var fs = new FileStream(document, FileMode.Open, FileAccess.Read))
             {
-                var result = Pdf2ImageList(document);
+                if (fs.Length > 0)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        fs.CopyTo(ms);
+                        ms.Position = 0;
+                        return (List<string>)Pdf2ImageList(ms, saveLocation, true);
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        /// <summary>
+        /// Split Pdf into a list of Bitmap images.
+        /// </summary>
+        /// <param name="document">MemoryStream of Pdf Document</param>
+        /// <param name="dpi">DPI of generated images</param>
+        /// <returns></returns>
+        public static List<Bitmap> Split(MemoryStream document, int dpi = 300)
+        {
+            Dpi = dpi;
+            if (document.Length > 0)
+            {
+                var result = (List<Bitmap>)Pdf2ImageList(document);
                 return result;
             }
-
-
             return null;
         }
 
@@ -65,70 +90,71 @@ namespace PdfToBitmapList
                 using (MemoryStream ms = new MemoryStream())
                 {
                     ms.Write(document);
-                    PdfDocument doc = PdfReader.Open(ms, PdfDocumentOpenMode.Import, PdfReadAccuracy.Moderate);
 
-                    if (doc != null)
+                    if (ms.Length > 0)
                     {
-                        var result = Pdf2ImageList(doc);
+                        var result = (List<Bitmap>)Pdf2ImageList(ms);
                         return result;
                     }
                 }
             }
-           
 
             return null;
         }
 
-        private static List<Bitmap> Pdf2ImageList(PdfDocument document)
+        private static object Pdf2ImageList(MemoryStream ms, string? saveLocation = null, bool saveToDisk = false)
         {
             List<Bitmap> returnList = new List<Bitmap>();
+            List<string> imageString = new List<string>();
 
-            var pageCount = document.PageCount;
+            
+                PdfDoc pdf = PdfDoc.Load(ms);
 
-            var index = 0;
-            while (index < pageCount)
-            {
-                PdfDocument temp = new PdfDocument();
-
-                temp.AddPage(document.Pages[index]);
-
-                Size size = new Size();
-                size.Width = (int)document.Pages[index].Width;
-                size.Height = (int)document.Pages[index].Height;
-
-                using (MemoryStream ms = new MemoryStream())
+                var index = 0;
+                while (index < pdf.PageCount())
                 {
-                    temp.Save(ms);
-                    Image image = RenderPage(ms, 1, size);
-                    Bitmap bitmapImage = new Bitmap(image);
-                    returnList.Add(bitmapImage);
+                    var size = pdf.PageSizes[index];
+
+                    Image image = GetPageImage(index, Size.Round(size), pdf, Dpi);
+                    //save to disk if requested
+                    if (saveToDisk)
+                    {
+                        //set save location to temp files if not passed in
+                        if (saveLocation == null)
+                        {
+                            saveLocation = Path.GetTempPath();
+                        }
+
+                        var fileName = $"{Guid.NewGuid()}.png";
+                        var localSaveLocation = Path.Combine(saveLocation!, fileName);
+                        image.Save(localSaveLocation, ImageFormat.Png);
+                        imageString.Add(localSaveLocation);
+                    }
+                    else
+                    {
+                        Bitmap bitmapImage = new Bitmap(image);
+                        returnList.Add(bitmapImage);
+                    }
+                    image.Dispose();
+
+                    index++;
                 }
 
-                index++;
-            }
-
-            return returnList;
+                if (saveToDisk)
+                {
+                    return imageString;
+                }
+                else
+                {
+                    return returnList;
+                }
+            
         }
 
         private static Image GetPageImage(int pageNumber, Size size, PdfDoc document, int dpi)
         {
-            return document.Render(pageNumber - 1, size.Width, size.Height, dpi, dpi, PdfRenderFlags.Annotations|PdfRenderFlags.CorrectFromDpi);
+            return document.Render(pageNumber, size.Width, size.Height, dpi, dpi, PdfRotation.Rotate0, PdfRenderFlags.Annotations | PdfRenderFlags.CorrectFromDpi | PdfRenderFlags.ForPrinting, true);
         }
-
-        private static Image RenderPage(Stream pdfPath, int pageNumber, Size size)
-        {
-            using (var document = PdfDoc.Load(pdfPath))
-            {
-                var image = GetPageImage(pageNumber, size, document, Dpi);
-                {
-                    return image;
-                }
-            }
-
-        }
-
-
-
 
     }
 }
